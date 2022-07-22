@@ -1,10 +1,14 @@
 import express from 'express';
 import { routes } from './routes';
+import morgan from 'morgan';
+const cors = require("cors");
 import { initializeDbConnection } from './db';
 
 const PORT = process.env.PORT || 8080;
 
 const app = express();
+app.use(cors());
+app.use(morgan('dev'));
 
 // This allows us to access the body of POST/PUT
 // requests in our route handlers (as req.body)
