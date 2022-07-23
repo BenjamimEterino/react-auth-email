@@ -14,15 +14,20 @@ export const LogInPage = () => {
     const { token: oauthToekn } = useQueryParams();
 
     const onLogin = async () => {
-        const response = await axios.post('/api/login', {
-            email: emailValue,
-            password: passwordValue
-        });
+        try {
+            const response = await axios.post('/api/login', {
+                email: emailValue,
+                password: passwordValue
+            });
 
-        const { token } = response.data;
-        setToken(token);
+            const { token } = response.data;
+            setToken(token);
 
-        history.push('/')
+            history.push('/')
+        } catch (e) {
+            setErrorMessage(e.message);
+        }
+        
     }
     const history = useHistory();
 
@@ -32,6 +37,7 @@ export const LogInPage = () => {
             history.push('/')
         }
     }, [oauthToekn, setToken, history]);
+
     useEffect(() => {
         const loadOauthUrl = async () => {
             try {
