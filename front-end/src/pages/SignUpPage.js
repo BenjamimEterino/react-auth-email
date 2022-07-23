@@ -20,7 +20,7 @@ export const SignUpPage = () => {
         });
         const {token} = response.data;
         setToken(token);
-        history.push('/verify-email');
+        history.push(`/verify-email?email=${encodeURIComponent(emailValue)}`);
     }
     return (
         <div className="content-conatiner">

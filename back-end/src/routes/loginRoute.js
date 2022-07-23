@@ -1,6 +1,12 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getDbConnection } from '../db';
+import {
+    AuthenticationDetails,
+    CognitoUserPool,
+    CognitoUserAttribute,
+    CognitoUser,
+} from 'amazon-cognito-identity-js';
+import { awsUserPool } from "../util/awsUserPool"
 
 export const loginRoute = {
     path: '/api/login',
@@ -8,27 +14,30 @@ export const loginRoute = {
     handler: async (req, res) => {
         const { email, password } = req.body;
 
-        const db = getDbConnection('authenticate');
+        new CognitoUser({ Username: email, Pool: awsUserPool })
+            .authenticateUser(new AuthenticationDetails({ Username: email, Password: password }), {
+                onSuccess: async result => {
+                    const db = getDbConnection('authenticate');
+                    const user = await db.collection('users').findOne({ email });
 
-        const user = await db.collection('users').findOne({ email });
+                    const { _id: id, isVerified, info } = user;
 
-        if (!user) return res.sendStatus(401);
+                    jwt.sign({ id, isVerified, email, info }, process.env.JWT_SECRET, { expiresIn: '30d' }, (err, token) => {
+                        if (err) {
+                            res.sendStatus(500).json(err);
+                        }
 
+                        res.status(200).json({ token });
+                    })
 
-        const { _id: id, isVerified, passwordHash, info } = user;
-
-        const isCorrect = await bcrypt.compare(password, passwordHash);
-
-        if (isCorrect) {
-            jwt.sign({ id, isVerified, email, info }, process.env.JWT_SECRET, { expiresIn: '30d' }, (err, token) => {
-                if (err) {
-                    res.status(500).json(err);
+                },
+                onFailure: err => {
+                    res.sendStatus(401);
                 }
+            });
 
-                res.status(200).json({ token });
-            })
-        } else {
-            res.sendStatus(401);
-        }
+
+
+
     }
 }

@@ -1,14 +1,16 @@
-import {useEffect} from 'react'
-import {useHistory} from 'react-router-dom'
+import { useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
+import { useQueryParams } from '../util/useQueryParams';
 
 export const VerifyEmail = () => {
     const history = useHistory();
+    const { email } = useQueryParams();
 
     useEffect(() => {
-        setTimeout(() =>{
-            history.push('/')
+        setTimeout(() => {
+            history.push(`/verify-email?email=${encodeURIComponent(email)}`)
         }, 3000)
-    }, [history]);
+    }, [history, email]);
 
     return (
         <div className="content-container">

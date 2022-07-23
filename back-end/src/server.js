@@ -1,8 +1,8 @@
 import express from 'express';
-import { routes } from './routes';
+import { routes } from './routes/index.js';
 import morgan from 'morgan';
 const cors = require("cors");
-import { initializeDbConnection } from './db';
+import { initializeDbConnection } from './db.js';
 
 const PORT = process.env.PORT || 8080;
 
